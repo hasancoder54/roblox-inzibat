@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roblox İnzibat Sorgu</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0d1117, #001f3f); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    h1 { color: #1da1f2; margin-bottom: 20px; }
+    input { padding: 10px; width: 250px; border-radius: 5px; border: none; margin-bottom: 10px; outline: none; }
+    button { padding: 10px 20px; background: #1da1f2; border: none; border-radius: 5px; cursor: pointer; color: #fff; }
+    .result { margin-top: 20px; background: #111; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px; }
+    .group { margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Roblox İnzibat Sorgu</h1>
+  <input id="username" placeholder="Oyuncu ismi yazınız..." />
+  <button onclick="searchUser()">Sorgula</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    async function searchUser() {
+      const user = document.getElementById("username").value.trim();
+      const out = document.getElementById("result");
+      if (!user) return (out.innerText = "Lütfen oyuncu adı girin.");
+      out.innerText = "Yükleniyor...";
+      try {
+        const res = await fetch(`/api?username=${encodeURIComponent(user)}`);
+        const data = await res.json();
+        if (data.error) {
+          out.innerText = data.error;
+          return;
+        }
+        let html = `<p><strong>Username:</strong> ${data.username}</p><p><strong>User ID:</strong> ${data.userId}</p><p><strong>Gruplar:</strong></p>`;
+        if (data.groups.length === 0) {
+          html += `<p>(Hiç grup yok)</p>`;
+        } else {
+          data.groups.forEach(g => { html += `<div class="group">– ${g.groupName} [${g.userRole}]</div>`; });
+        }
+        out.innerHTML = html;
+      } catch (e) {
+        out.innerText = "Sunucuya ulaşırken hata oluştu.";
+      }
+    }
+  </script>
+</body>
+</html>
